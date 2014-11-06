@@ -1,6 +1,5 @@
-# Rough draft of solution for Programming challenge for BATT Application
-# Relevant cs problems: knapsack problem, bin-packing problem (variable sized), cutting stock problem
 # Author: J. H. Montoya
+import sys
 
 class Distributor:
     def __init__(self,files_filename,nodes_filename):
@@ -13,7 +12,8 @@ class Distributor:
 
     def parse_file(self,filename):
         '''Returns a list of [filename,size] lists, 
-        ignores lines starting with #'''
+        ignores lines starting with #,
+        prints error'''
         f = open(filename)
         lines = f.read().split('\n')
         f.close()
@@ -22,11 +22,13 @@ class Distributor:
             # More elegant error handling to be added
             if ' ' not in line:
                 # Format error
+                sys.exit(0)
+            elif line[0]=='#':
                 continue
             elif not line.split()[1].isdigit():
                 print 'warning: Non-integer size error'
                 continue
-            elif not line[0]=='#':
+            else:
                 parsed_list.append([line.split()[0], # name
                                     int(line.split()[1]), # size
                                     0 # fullness initialized to zero
@@ -41,11 +43,13 @@ class Distributor:
         self.nodes_data.sort(key=lambda x: x[1])
 
     def sort_nodes_by_fullness(self):
+        '''sorts nodes first by fullness, then by size'''
         self.nodes_data.sort(key=lambda x: (x[2],x[1]))
     
     def place_file_in_llfn_that_fits(self,n=0):
-        '''Place the largest least full node that can fit object
-        If I fits, I sits.  -Every cat ever'''
+        '''Place the largest file into the largest 
+        least full node that can fit object
+        If I fits, I sits.  -Anonymous cat'''
         if n==len(self.nodes_data)-1:
             self.assignments[self.files_unassigned[-1][0]]='NULL'
             self.files_unassigned.pop()
@@ -66,9 +70,26 @@ class Distributor:
             self.sort_nodes_by_fullness()
 
     def distribute(self):
-        '''Distribution algorithm'''
+        '''Packs files into nodes recursively'''
         if len(self.files_unassigned)==0:
             return
         else:
             self.place_file_in_llfn_that_fits()
             self.distribute()
+    
+    def plot(self,filename='out.png'):
+        from matplotlib import pyplot as plt
+        node_dict = {}
+        for m,node in enumerate(self.nodes_data):
+            plt.bar(m,node[1])
+            node_dict[node[0]] = [m,0.0]
+        #print node_dict
+        for m,filename in enumerate(self.files_data):
+            if not self.assignments[filename[0]]=='NULL':
+                plt.bar(node_dict[self.assignments[filename[0]]][0],
+                        filename[1],
+                        bottom=node_dict[self.assignments[filename[0]]][1])
+                node_dict[self.assignments[filename[0]]][1] += filename[1]
+        plt.show()
+            
+
