@@ -17,6 +17,6 @@ args = arg_parser.parse_args()
 
 # Main body
 dist = Distributor(args.f,args.n)
-dist.distribute()
+dist.distribute_iteratively()
 print dist.assignments
 dist.plot()

@@ -47,6 +47,36 @@ class Distributor:
         '''sorts nodes first by fullness, then by size'''
         self.nodes_data.sort(key=lambda x: (x[2],x[1]))
     
+    def pack_last_file(self):
+        self.sort_nodes_by_fullness() # this is probably redundant
+        j = 0 
+        llfn_thatfits = False
+        while not llfn_thatfits:
+            if j==len(self.nodes_data)-1:
+                if self.files_unassigned[-1][1] < \
+                         self.nodes_data[j][1] - self.nodes_data[j][2]:
+                    self.assignments[self.files_unassigned[-1][0]] = self.nodes_data[j][0]
+                    self.nodes_data[j][2] = \
+                        self.nodes_data[j][2]+self.files_unassigned[-1][1]
+                    self.files_unassigned.pop()
+                else:
+                    self.assignments[self.files_unassigned[-1][0]]='NULL'
+                    self.files_unassigned.pop()
+                llfn_thatfits = True
+            elif (self.nodes_data[j][1] >= self.nodes_data[j-1][1] or j==0) and \
+                 self.nodes_data[j][2] <= self.nodes_data[j+1][2] and \
+                 self.files_unassigned[-1][1] < \
+                         self.nodes_data[j][1] - self.nodes_data[j][2]:
+                self.assignments[self.files_unassigned[-1][0]] = self.nodes_data[j][0]
+                self.nodes_data[j][2] = \
+                        self.nodes_data[j][2]+self.files_unassigned[-1][1]
+                self.files_unassigned.pop()
+                llfn_thatfits = True
+            else:
+                j+=1
+                #print 'something went wrong'
+
+
     def place_file_in_llfn_that_fits(self,n=0):
         '''Place the largest file into the largest 
         least full node that can fit object
@@ -70,10 +100,14 @@ class Distributor:
                 self.place_file_in_llfn_that_fits(n=n)
             self.sort_nodes_by_fullness()
 
-    def distribute(self):
+    def distribute_recursively(self):
         '''Packs files into nodes recursively'''
         while len(self.files_unassigned)!=0:
             self.place_file_in_llfn_that_fits()
+
+    def distribute_iteratively(self):
+        while len(self.files_unassigned)!=0:
+            self.pack_last_file()
     
     def plot(self,filename='out.png'):
         from matplotlib import pyplot as plt
