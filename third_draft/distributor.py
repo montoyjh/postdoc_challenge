@@ -98,10 +98,15 @@ class Distributor:
             else:
                 j+=1
 
-    def distribute_iteratively(self):
+    def distribute(self):
         while len(self.files_unassigned) != 0:
             self.pack_last_file()
-    
+
+    def summary(self):
+        self.files.sort(key = lambda x: (x.location,x.size))
+        for filen in self.files:
+            print ':'.join([filen.name,filen.location])
+
     def plot(self,filename='out.png'):
         from matplotlib import pyplot as plt
         for m,node in enumerate(self.nodes):
