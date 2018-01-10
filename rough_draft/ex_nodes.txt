@@ -1,3 +1,0 @@
-# node-name available-space
-node1 65536
-node2 32768
