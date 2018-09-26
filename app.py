@@ -1,5 +1,6 @@
 from os import environ
 from uuid import uuid4
+from base64 import b64decode
 
 import dash
 import dash_core_components as dcc
@@ -7,7 +8,7 @@ import dash_html_components as html
 
 from dash.dependencies import Input, Output, State
 
-from distribution import Distribution, parse_file
+from distribution import Distribution, parse_string
 
 from flask_caching import Cache
 import logging
@@ -79,35 +80,38 @@ app.layout = html.Div(
 
 @app.callback(Output('plot-content', 'children'),
               [Input('generate_plot', 'n_clicks')],
-              [State('files_upload_data', 'filename'),
-               State('nodes_upload_data', 'filename')])
-def plot_distribution(n_clicks, nodes_file, files_file):
+              [State('files_upload_data', 'contents'),
+               State('nodes_upload_data', 'contents')])
+def plot_distribution(n_clicks, files_content, nodes_content):
     """Plots the distribution"""
-    logger.info("Using nodes file %s and files file %s",
-                (nodes_file, files_file))
-    distribution = Distribution.from_filenames(nodes_file, files_file)
+    filestring = b64decode(files_content[1])
+    nodestring = b64decode(nodes_content[1])
+    distribution = Distribution.from_strings(nodestring, filestring)
     fig = distribution.get_plotly(output_file=False)
     component = dcc.Graph(id="distribution_chart", figure=fig)
     return component
 
 
 @app.callback(Output('nodes_summary', 'children'),
-              [Input('nodes_upload_data', 'filename')])
-def node_summary(nodes_file):
-    logger.info("Parsing nodes file %s", nodes_file)
-    return get_file_summary(nodes_file, 'nodes')
+              [Input('nodes_upload_data', 'filename'),
+               Input('nodes_upload_data', 'contents')])
+def node_summary(fname, contents):
+    logger.info("Parsing nodes file %s", fname)
+    return get_file_summary(fname, contents, 'nodes')
 
 
 @app.callback(Output('files_summary', 'children'),
-              [Input('files_upload_data', 'filename')])
-def node_summary(nodes_file):
-    logger.info("Parsing nodes file %s", nodes_file)
-    return get_file_summary(nodes_file, 'files')
+              [Input('files_upload_data', 'filename'),
+               Input('files_upload_data', 'contents')])
+def node_summary(fname, contents):
+    logger.info("Parsing nodes file %s", fname)
+    return get_file_summary(fname, contents, 'files')
 
 
-def get_file_summary(filename, name):
+def get_file_summary(filename, contents, name):
     try:
-        data = parse_file(filename)
+        decoded_contents = b64decode(contents)
+        data = parse_string(decoded_contents)
         size_list = list(zip(*data))[1]
         minmax = min(size_list), max(size_list)
         msg = "{} contains {} {}, sizes {}-{}".format(
