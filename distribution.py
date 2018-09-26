@@ -1,10 +1,12 @@
 # Author: J. H. Montoya - montoyjh@gmail.com
-import sys
 import logging
 
 import numpy as np
 from tqdm import tqdm
 from matplotlib import pyplot as plt
+import plotly.plotly as py
+import plotly.graph_objs as go
+
 
 logger = logging.getLogger(__name__)
 
@@ -64,7 +66,20 @@ class Distribution(object):
         plt.show()
 
     def get_plotly(self):
-        pass
+        # hella wonky, but I'm not sure how to do it otherwise in plotly
+        traces = []
+        for pf, node in zip(self.placed_files, self.nodes):
+            pf_names, pf_sizes = list(zip(pf))
+
+            trace = go.Bar(
+                x = [node[0]]*len(pf),
+                y = pf_sizes,
+                base = np.cumsum(pf_sizes) - pf_sizes[0]
+            )
+            traces.append(trace)
+
+        fig = go.Figure(data=traces)
+        py.iplot(fig, filename='stacked-bar')
 
 
 # Helper methods for parsing files
