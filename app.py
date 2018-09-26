@@ -1,3 +1,5 @@
+from os import environ
+
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
@@ -19,6 +21,7 @@ external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css',
                         ]
 
 app = dash.Dash(external_stylesheets=external_stylesheets)
+app.server.secret_key = environ.get('FLASK_SECRET_KEY', str(uuid4()))
 server = app.server
 # app.scripts.config.serve_locally = True
 app.title = "File distributor"
