@@ -14,6 +14,7 @@ from flask_caching import Cache
 import logging
 
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 
 # standard Dash css, fork this for a custom theme
@@ -84,12 +85,14 @@ app.layout = html.Div(
                State('nodes_upload_data', 'contents')])
 def plot_distribution(n_clicks, files_content, nodes_content):
     """Plots the distribution"""
-    filestring = b64decode(files_content[1])
-    nodestring = b64decode(nodes_content[1])
-    distribution = Distribution.from_strings(nodestring, filestring)
-    fig = distribution.get_plotly(output_file=False)
-    component = dcc.Graph(id="distribution_chart", figure=fig)
-    return component
+    if files_content is not None and nodes_content is not None:
+        filestring = stringify_contents(files_content)
+        nodestring = stringify_contents(nodes_content)
+        print(nodestring)
+        distribution = Distribution.from_strings(nodestring, filestring)
+        fig = distribution.get_plotly(output_file=False)
+        component = dcc.Graph(id="distribution_chart", figure=fig)
+        return component
 
 
 @app.callback(Output('nodes_summary', 'children'),
@@ -108,20 +111,25 @@ def node_summary(fname, contents):
     return get_file_summary(fname, contents, 'files')
 
 
+def stringify_contents(contents):
+    content_type, contents = contents.split(',')
+    return b64decode(contents).decode('utf-8')
+
 def get_file_summary(filename, contents, name):
-    try:
-        decoded_contents = b64decode(contents)
-        data = parse_string(decoded_contents)
-        size_list = list(zip(*data))[1]
-        minmax = min(size_list), max(size_list)
-        msg = "{} contains {} {}, sizes {}-{}".format(
-            filename, name, len(size_list), minmax[0], minmax[1])
-        color='green'
-    except:
-        logger.info("Error parsing file")
-        msg = "Error parsing {}".format(filename)
-        color = 'red'
-    return html.P(msg, style={'color': color})
+    if contents is not None:
+        try:
+            decoded = stringify_contents(contents)
+            data = parse_string(decoded)
+            size_list = list(zip(*data))[1]
+            minmax = min(size_list), max(size_list)
+            msg = "{} contains {} {}, sizes {}-{}".format(
+                filename, name, len(size_list), minmax[0], minmax[1])
+            color='green'
+        except Exception as e:
+            logger.debug("Error parsing file {}".format(e))
+            msg = "Error parsing {}".format(filename)
+            color = 'red'
+        return html.P(msg, style={'color': color})
 
 
 if __name__ == '__main__':

@@ -102,7 +102,7 @@ class Distribution(object):
     def from_strings(cls, nodes_string, files_string):
         nodes = parse_string(nodes_string)
         files = parse_string(files_string)
-        return cls(files, nodes)
+        return cls(nodes, files)
 
     def plot(self, show=False):
         """
