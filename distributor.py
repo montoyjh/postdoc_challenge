@@ -6,7 +6,8 @@ import numpy as np
 from tqdm import tqdm
 from matplotlib import pyplot as plt
 
-logger = logging.logger(__name__)
+logger = logging.getLogger(__name__)
+
 
 class Distribution(object):
     """
@@ -45,7 +46,9 @@ class Distribution(object):
 
     @classmethod
     def from_filenames(cls, file_filename, node_filename):
-        pass
+        nodes = parse_file(node_filename)
+        files = parse_file(file_filename)
+        return cls(files, nodes)
 
     def plot(self):
         for x, (node, files) in enumerate(zip(self.nodes, self.placed_files)):
@@ -62,3 +65,21 @@ class Distribution(object):
 
     def get_plotly(self):
         pass
+
+
+# Helper methods for parsing files
+def parse_file(filename):
+    """Parses file into titles and values"""
+    with open(filename) as f:
+        lines = f.readlines()
+    lines = [line for line in lines if not line.startswith("#")]
+    pairs = [parse_line(line) for line in lines]
+    return pairs
+
+def parse_line(line):
+    try:
+        name, value = line.split(' ')
+        return name, float(value)
+    except:
+        raise ValueError("Badly formatted line: {}. "
+                         "Please format lines as 'NAME' 'VALUE'".format(line))
