@@ -115,7 +115,7 @@ class Distribution(object):
             plt.show()
         return plt
 
-    def get_plotly(self):
+    def get_plotly(self, output_file='distribution.html'):
         df = DataFrame(self.placed_files, index=self.nodes)
         node_names = self.node_names
         data = []
@@ -136,7 +136,9 @@ class Distribution(object):
         layout = go.Layout(barmode='stack', showlegend=False,
                            yaxis={"title": "Space"})
         fig = go.Figure(data=data, layout=layout)
-        plot(fig, filename='stacked-bar')
+        if output_file:
+            plot(fig, filename=output_file)
+        return fig
 
     @property
     def node_names(self):
