@@ -24,7 +24,8 @@ external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css',
 app = dash.Dash(external_stylesheets=external_stylesheets)
 app.server.secret_key = environ.get('FLASK_SECRET_KEY', str(uuid4()))
 server = app.server
-# app.scripts.config.serve_locally = True
+app.css.config.serve_locally = True
+app.scripts.config.serve_locally = True
 app.title = "File distributor"
 route = dcc.Location(id='url', refresh=False)
 
@@ -32,9 +33,11 @@ cache = Cache(app.server, config={
     'CACHE_TYPE': 'filesystem', 'CACHE_DIR': '.tmp'
 })
 
+
 def help_layout(help_message):
     html.Span([" ", html.Span(help_message, className="tooltiptext")],
               className="tooltip")
+
 
 def get_upload_div(name):
     return html.Div([
