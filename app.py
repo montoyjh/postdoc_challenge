@@ -46,7 +46,7 @@ def get_upload_div(name):
                                            "{} and sizes.".format(name))
                            ]),
                            style={
-                               'width': '40%',
+                               'width': '100%',
                                'height': '100px',
                                'lineHeight': '60px',
                                'borderWidth': '1px',
