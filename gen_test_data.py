@@ -12,7 +12,7 @@ arg_parser.add_argument('-o',  '--output',
 arg_parser.add_argument('-n', '--num_entries', type=int,
                         help='number of correctly formatted data entries',
                         default=10)
-arg_parser.add_argument('-h', '--hash', type=int,
+arg_parser.add_argument('-i', '--hash', type=int,
                         help='number of lines beginning with hashes',
                         default=0)
 arg_parser.add_argument('-e', '--errors', type=int,
@@ -36,5 +36,5 @@ if __name__ == "__main__":
 
     shuffle(outlines)
 
-    with open(args.o, 'w') as f:
+    with open(args.output, 'w') as f:
         f.write('\n'.join(outlines))
