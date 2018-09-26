@@ -26,7 +26,7 @@ class Distribution(object):
         nodes ([tuple]): list of (nodename, size) tuples corresponding
             to nodes on which to place files
     """
-    def __init__(self, files, nodes):
+    def __init__(self, nodes, files):
         self.files = files
         self.nodes = nodes
         self.placed_files, self.null_files,\
@@ -84,7 +84,7 @@ class Distribution(object):
         return placed_files, null_files, leftover
 
     @classmethod
-    def from_filenames(cls, file_filename, node_filename):
+    def from_filenames(cls, node_filename, file_filename):
         """
         Factory method to initialize class from parsed input files
 
@@ -92,8 +92,16 @@ class Distribution(object):
             file_filename (str): filename corresponding to files input
             node_filename (str): filename corresponding to nodes input
         """
-        nodes = parse_file(node_filename)
-        files = parse_file(file_filename)
+        with open(node_filename) as f:
+            nstring = f.read()
+        with open(file_filename) as g:
+            fstring = g.read()
+        return cls.from_strings(nstring, fstring)
+
+    @classmethod
+    def from_strings(cls, nodes_string, files_string):
+        nodes = parse_string(nodes_string)
+        files = parse_string(files_string)
         return cls(files, nodes)
 
     def plot(self, show=False):
@@ -157,16 +165,16 @@ class Distribution(object):
         else:
             print(text)
 
+
 # Helper methods for parsing files
-def parse_file(filename):
+def parse_string(string):
     """Parses file into titles and values"""
-    with open(filename) as f:
-        lines = f.readlines()
-    lines = [line for line in lines if not line.startswith("#")]
+    lines = [line for line in string.split('\n') if not line.startswith("#")]
     pairs = [parse_line(line) for line in lines]
     return pairs
 
 def parse_line(line):
+    """Parses individual lines and throws an error if bad line is encountered"""
     try:
         name, value = line.split(' ')
         return name, float(value)

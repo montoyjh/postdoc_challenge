@@ -26,7 +26,7 @@ args = arg_parser.parse_args()
 
 # Main body
 if __name__ == "__main__":
-    dist = Distribution.from_filenames(args.files, args.nodes)
+    dist = Distribution.from_filenames(args.nodes, args.files)
     dist.summary(args.output)
 
     if args.plot:
