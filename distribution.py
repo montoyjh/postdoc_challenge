@@ -20,15 +20,42 @@ class Distribution(object):
     the resulting distribution.
 
     Args:
-        files_list (dict
+        files ([tuple]): list of (filename, size) tuples corresponding
+            to files to put on nodes
+        nodes ([tuple]): list of (nodename, size) tuples corresponding
+            to nodes on which to place files
     """
     def __init__(self, files, nodes):
         self.files = files
         self.nodes = nodes
-        self.placed_files, self.null_files = self.distribute_files(nodes, files)
+        self.placed_files, self.null_files,\
+            self.leftovers = self.distribute_files(nodes, files)
 
     @staticmethod
     def distribute_files(nodes, files):
+        """
+        Static method to distribute nodes and files.  The algorithm
+        places each file sequentially in order of decreasing file size
+        onto the node with the least used space on which it can fit.
+
+        If a given file cannot fit on any node, it is placed into a
+        null_files list, which is eventually returned with the list
+        of placed files.
+
+        Args:
+            files ([tuple]): list of (filename, size) tuples corresponding
+                to files to put on nodes
+            nodes ([tuple]): list of (nodename, size) tuples corresponding
+                to nodes on which to place files
+
+        Returns:
+            placed_files ([[tuple]]): a list of list of tuples of files
+                placed on each node.  The list of lists is ordered in the
+                same order as the node list.
+            null_files ([tuple]): the list of files which cannot be placed
+                on any node.
+            used_space (np.array): total space used
+        """
         null_files = []
         # Sort files by reverse size
         logger.debug("Sorting files")
@@ -42,28 +69,39 @@ class Distribution(object):
             # Find biggest node and put the file in that spot
             logger.debug("Finding largest remaining space node")
             # Find where least space has been added where the file can fit
-            mask = total_space - used_space > file[1]
+            mask = total_space - used_space >= file[1]
             if not mask.any():
                 null_files.append(file)
             else:
-                candidates[mask] == np.inf
+                candidates[np.logical_not(mask)] = np.inf
                 loc = np.argmin(candidates)
                 logger.debug("Placing file on node: %s", nodes[loc][0])
                 # Add file to files on node and reduce available space
                 placed_files[loc].append(file)
                 used_space[loc] += file[1]
-        return placed_files, null_files
+        leftover = total_space - used_space
+        return placed_files, null_files, leftover
 
     @classmethod
     def from_filenames(cls, file_filename, node_filename):
+        """
+        Factory method to initialize class from parsed input files
+
+        Args:
+            file_filename (str): filename corresponding to files input
+            node_filename (str): filename corresponding to nodes input
+        """
         nodes = parse_file(node_filename)
         files = parse_file(file_filename)
         return cls(files, nodes)
 
-    def plot(self):
+    def plot(self, show=False):
+        """
+        Simple plotting method, mostly for testing
+        """
         for x, (node, files) in enumerate(zip(self.nodes, self.placed_files)):
             # Draw outline
-            plt.bar(x, node[0], color='w')
+            plt.bar(x, node[1], color='w', edgecolor='k')
             bottom = 0.0
             for file in files:
                 # Draw bars upward and move bottom
