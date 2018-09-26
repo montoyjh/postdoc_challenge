@@ -4,8 +4,9 @@ import logging
 import numpy as np
 from tqdm import tqdm
 from matplotlib import pyplot as plt
-import plotly.plotly as py
+from plotly.offline import plot
 import plotly.graph_objs as go
+from pandas import DataFrame
 
 
 logger = logging.getLogger(__name__)
@@ -109,19 +110,37 @@ class Distribution(object):
                 bottom += file[1]
         plt.xticks([x for x in range(len(self.nodes))],
                    [node[0] for node in self.nodes])
-        plt.show()
+        plt.yticks(np.arange(0, 10001, 1000))
+        if show:
+            plt.show()
+        return plt
 
     def get_plotly(self):
-        # hella wonky, but I'm not sure how to do it otherwise in plotly
-        traces = []
-        for pf, node in zip(self.placed_files, self.nodes):
-            pf_names, pf_sizes = list(zip(pf))
-            trace = go.Bar(x=[node[0]]*len(pf), y=pf_sizes,
-                           base=np.cumsum(pf_sizes) - pf_sizes[0])
-            traces.append(trace)
+        df = DataFrame(self.placed_files, index=self.nodes)
+        node_names = self.node_names
+        data = []
+        for col_id, contents in df.items():
+            vals = [v if v is not None else (None, None)
+                    for v in contents.values]
+            file_names, file_sizes = list(zip(*vals))
+            trace = go.Bar(x=node_names, y=file_sizes, text=file_names, name='')
+            data.append(trace)
+        data.append(go.Bar(x=node_names, y=self.leftovers,
+                           marker={"color": "white",
+                                   "line": {"color": "black",
+                                            "width": 0.5}},
+                           hovertext=[
+                               "Leftover on {}: {}".format(node_name, leftover)
+                               for node_name, leftover in
+                               zip(node_names, self.leftovers)]))
+        layout = go.Layout(barmode='stack', showlegend=False,
+                           yaxis={"title": "Space"})
+        fig = go.Figure(data=data, layout=layout)
+        plot(fig, filename='stacked-bar')
 
-        fig = go.Figure(data=traces)
-        py.iplot(fig, filename='stacked-bar')
+    @property
+    def node_names(self):
+        return list(zip(*self.nodes))[0]
 
     def summary(self, output_file=None):
         lines = []
