@@ -160,7 +160,7 @@ class Distribution(object):
         lines.extend(['NULL {}'.format(file[0]) for file in self.null_files])
         text = '\n'.join(lines)
         if output_file:
-            with open(output_file) as f:
+            with open(output_file, 'w') as f:
                 f.write(text)
         else:
             print(text)

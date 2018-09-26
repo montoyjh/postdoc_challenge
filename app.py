@@ -14,16 +14,15 @@ from flask_caching import Cache
 import logging
 
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
 
 
-# standard Dash css, fork this for a custom theme
-# we real web devs now
-external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css',
-                        'https://codepen.io/mikesmith1611/pen/QOKgpG.css'
-                        ]
-
-app = dash.Dash(external_stylesheets=external_stylesheets)
+# external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css',
+#                         'https://codepen.io/mikesmith1611/pen/QOKgpG.css']
+app = dash.Dash()
+app.css.append_css(
+    {"external_url": 'https://codepen.io/chriddyp/pen/bWLwgP.css'})
+app.css.append_css(
+    {"external_url": 'https://codepen.io/mikesmith1611/pen/QOKgpG.css'})
 app.server.secret_key = environ.get('FLASK_SECRET_KEY', str(uuid4()))
 server = app.server
 app.css.config.serve_locally = True
@@ -50,8 +49,6 @@ def get_upload_div(name):
                                    ['Drag and Drop or ',
                                     html.A('Select File')],
                                    id='{}_upload_label'.format(name)),
-                               help_layout("Upload a text file representing a list of"
-                                           "{} and sizes.".format(name))
                            ]),
                            style={
                                'width': '100%',
