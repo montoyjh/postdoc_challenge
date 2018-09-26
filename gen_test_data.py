@@ -3,6 +3,7 @@ import argparse
 import uuid
 from random import randint, shuffle
 
+
 arg_parser = argparse.ArgumentParser()
 
 arg_parser.add_argument('-o',  '--output',
@@ -26,13 +27,14 @@ arg_parser.add_argument('-l', '--lower', type=int,
 
 args = arg_parser.parse_args()
 
-outlines = []
-outlines += ["node_{} {}".format(n, randint(args.lower, args.upper))
-             for n in range(args.num_entries)]
-outlines += ["#{}".format(uuid.uuid4())]
-outlines += [uuid.uuid4() for n in range(args.errors)]
+if __name__ == "__main__":
+    outlines = []
+    outlines += ["node_{} {}".format(n, randint(args.lower, args.upper))
+                 for n in range(args.num_entries)]
+    outlines += ["#{}".format(uuid.uuid4())]
+    outlines += [uuid.uuid4() for n in range(args.errors)]
 
-shuffle(outlines)
+    shuffle(outlines)
 
-with open(args.o, 'w') as f:
-    f.write('\n'.join(outlines))
+    with open(args.o, 'w') as f:
+        f.write('\n'.join(outlines))
