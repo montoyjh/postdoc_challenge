@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 # standard Dash css, fork this for a custom theme
 # we real web devs now
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css',
-                        #'https://codepen.io/mikesmith1611/pen/QOKgpG.css'
+                        'https://codepen.io/mikesmith1611/pen/QOKgpG.css'
                         ]
 
 app = dash.Dash(external_stylesheets=external_stylesheets)
