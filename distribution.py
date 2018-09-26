@@ -25,26 +25,34 @@ class Distribution(object):
     def __init__(self, files, nodes):
         self.files = files
         self.nodes = nodes
-        self.placed_files = self.get_placed_files(nodes, files)
+        self.placed_files, self.null_files = self.distribute_files(nodes, files)
 
     @staticmethod
-    def get_placed_files(nodes, files):
-        node_space = list(zip(nodes))[1]
-        placed_files = [[] for _ in len(nodes)]
+    def distribute_files(nodes, files):
+        null_files = []
+        # Sort files by reverse size
+        logger.debug("Sorting files")
+        files = sorted(files, key=lambda x: -x[1])
+        # Initialize node space and file placement array
+        total_space = np.array(list(zip(*nodes))[1])
+        used_space = np.zeros(total_space.shape)
+        placed_files = [[] for _ in range(len(nodes))]
         for file in tqdm(files):
+            candidates = used_space.copy()
             # Find biggest node and put the file in that spot
             logger.debug("Finding largest remaining space node")
-            loc = np.argmax(node_space)
-
-            # Add file to files on node
-            logger.debug("Placing file on node: %s", nodes[loc][0])
-            placed_files[loc].append(file)
-
-            # Reduce available space on the node according to file size
-            node_space[loc] -= file[1]
-            if node_space[loc] < 0:
-                raise ValueError("Files are too large to be placed on nodes")
-        return placed_files
+            # Find where least space has been added where the file can fit
+            mask = total_space - used_space > file[1]
+            if not mask.any():
+                null_files.append(file)
+            else:
+                candidates[mask] == np.inf
+                loc = np.argmin(candidates)
+                logger.debug("Placing file on node: %s", nodes[loc][0])
+                # Add file to files on node and reduce available space
+                placed_files[loc].append(file)
+                used_space[loc] += file[1]
+        return placed_files, null_files
 
     @classmethod
     def from_filenames(cls, file_filename, node_filename):
