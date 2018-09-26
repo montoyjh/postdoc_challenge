@@ -46,7 +46,6 @@ def get_upload_div(name):
                 html.Label('Load a {} config (e. g. {}.txt):'.format(name, name)),
                 dcc.Upload(id='{}_upload_data'.format(name),
                            children=html.Div([
-                               html.Span(id='{}_summary'.format(name)),
                                html.Span(
                                    ['Drag and Drop or ',
                                     html.A('Select File')],
@@ -95,20 +94,26 @@ def plot_distribution(n_clicks, files_content, nodes_content):
         return component
 
 
-@app.callback(Output('nodes_summary', 'children'),
+@app.callback(Output('nodes_upload_label', 'children'),
               [Input('nodes_upload_data', 'filename'),
                Input('nodes_upload_data', 'contents')])
 def node_summary(fname, contents):
-    logger.info("Parsing nodes file %s", fname)
-    return get_file_summary(fname, contents, 'nodes')
+    if fname is not None:
+        logger.info("Parsing nodes file %s", fname)
+        return get_file_summary(fname, contents, 'nodes')
+    else:
+        return ['Drag and Drop or ', html.A('Select File')]
 
 
-@app.callback(Output('files_summary', 'children'),
+@app.callback(Output('files_upload_label', 'children'),
               [Input('files_upload_data', 'filename'),
                Input('files_upload_data', 'contents')])
 def node_summary(fname, contents):
-    logger.info("Parsing nodes file %s", fname)
-    return get_file_summary(fname, contents, 'files')
+    if fname is not None:
+        logger.info("Parsing nodes file %s", fname)
+        return get_file_summary(fname, contents, 'files')
+    else:
+        return ['Drag and Drop or ', html.A('Select File')]
 
 
 def stringify_contents(contents):
