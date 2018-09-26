@@ -69,8 +69,8 @@ class Distribution(object):
                 # Draw bars upward and move bottom
                 plt.bar(x, file[1], bottom=bottom)
                 bottom += file[1]
-        plt.xticks([0.4 + x for x in range(len(self.nodes))],
-                   [node.name for node in self.nodes])
+        plt.xticks([x for x in range(len(self.nodes))],
+                   [node[0] for node in self.nodes])
         plt.show()
 
     def get_plotly(self):
@@ -78,17 +78,25 @@ class Distribution(object):
         traces = []
         for pf, node in zip(self.placed_files, self.nodes):
             pf_names, pf_sizes = list(zip(pf))
-
-            trace = go.Bar(
-                x = [node[0]]*len(pf),
-                y = pf_sizes,
-                base = np.cumsum(pf_sizes) - pf_sizes[0]
-            )
+            trace = go.Bar(x=[node[0]]*len(pf), y=pf_sizes,
+                           base=np.cumsum(pf_sizes) - pf_sizes[0])
             traces.append(trace)
 
         fig = go.Figure(data=traces)
         py.iplot(fig, filename='stacked-bar')
 
+    def summary(self, output_file=None):
+        lines = []
+        for node, pf in zip(self.nodes, self.placed_files):
+            for file in pf:
+                lines.append('{} {}'.format(node[0], file[0]))
+        lines.extend(['NULL {}'.format(file[0]) for file in self.null_files])
+        text = '\n'.join(lines)
+        if output_file:
+            with open(output_file) as f:
+                f.write(text)
+        else:
+            print(text)
 
 # Helper methods for parsing files
 def parse_file(filename):
