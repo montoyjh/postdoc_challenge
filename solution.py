@@ -1,7 +1,6 @@
 # Author: J. Montoya - montoyjh@gmail.com
 
 from distribution import Distribution
-import sys
 import argparse
 
 # Argument parsing
