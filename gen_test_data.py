@@ -1,46 +1,38 @@
-# Author: J. Montoya - montoyjh@gmail.com
-import sys
+"""Quick module for creating files for testing"""
 import argparse
-import random
+import uuid
+from random import randint, shuffle
 
 arg_parser = argparse.ArgumentParser()
 
-arg_parser.add_argument('-o',metavar='OUTPUT_FILE',
+arg_parser.add_argument('-o',  '--output',
                         help='Output file for file',
                         required=True)
-arg_parser.add_argument('-n',metavar='NUM_DATA',type=int,
+arg_parser.add_argument('-n', '--num_entries', type=int,
                         help='number of correctly formatted data entries',
                         default=10)
-arg_parser.add_argument('-hashlines',metavar='NUM_HASH_LINES',type=int,
+arg_parser.add_argument('-h', '--hash', type=int,
                         help='number of lines beginning with hashes',
                         default=0)
-arg_parser.add_argument('-r',metavar='NUM_ERRORS',type=int,
+arg_parser.add_argument('-e', '--errors', type=int,
                         help='number of random lines, i. e. potential errors',
                         default=0)
-arg_parser.add_argument('-u',metavar='UPPER_LIMIT',type=int,
+arg_parser.add_argument('-u', '--upper', type=int,
                         help='upper limit of value sizes',
                         default=10000)
-arg_parser.add_argument('-l',metavar='LOWER_LIMIT',type=int,
+arg_parser.add_argument('-l', '--lower', type=int,
                         help='lower limit of value sizes',
                         default=10)
 
 args = arg_parser.parse_args()
-f = open(args.o,'w')
+
 outlines = []
-for i in range(args.n):
-    # Create random key 4-7 letters long
-    key = ''.join([chr(random.randint(40,100)) \
-                   for i in range(random.randint(4,8))])
-    value=random.randint(args.l,args.u)
-    outlines.append(' '.join([key,str(value)]))
+outlines += ["node_{} {}".format(n, randint(args.lower, args.upper))
+             for n in range(args.num_entries)]
+outlines += ["#{}".format(uuid.uuid4())]
+outlines += [uuid.uuid4() for n in range(args.errors)]
 
-for i in range(args.hashlines):
-    outlines.append('#'+''.join([chr(random.randint(40,100)) \
-                   for i in range(random.randint(4,8))]))
+shuffle(outlines)
 
-for i in range(args.r):
-    outlines.append(''.join([chr(random.randint(40,100)) \
-                   for i in range(random.randint(4,8))]))
-
-random.shuffle(outlines)
-f.write('\n'.join(outlines))
+with open(args.o, 'w') as f:
+    f.write('\n'.join(outlines))
