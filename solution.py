@@ -19,6 +19,9 @@ arg_parser.add_argument('-o', '--output',
                         help='output file, optional, default is stdout')
 arg_parser.add_argument('-p', '--plot', action='store_true',
                         help='plotting flag, plots nodes/files on bar chart')
+arg_parser.add_argument('-pl', '--plotly', action='store_true',
+                        help='plotting flag, plots nodes/files on bar chart'
+                             'in plotly')
 args = arg_parser.parse_args()
 
 # Main body
@@ -27,4 +30,6 @@ if __name__ == "__main__":
     dist.summary(args.output)
 
     if args.plot:
-        dist.plot()
+        ply = dist.plot()
+    if args.plotly:
+        plt = dist.get_plotly()

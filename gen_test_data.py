@@ -24,12 +24,17 @@ arg_parser.add_argument('-u', '--upper', type=int,
 arg_parser.add_argument('-l', '--lower', type=int,
                         help='lower limit of value sizes',
                         default=10)
+arg_parser.add_argument('-p', '--prefix', default="node",
+                        help="prefix for node/file titles, defaults to 'node'")
+
+
 
 args = arg_parser.parse_args()
 
 if __name__ == "__main__":
     outlines = []
-    outlines += ["node_{} {}".format(n, randint(args.lower, args.upper))
+    outlines += ["{}_{} {}".format(args.prefix, n,
+                                   randint(args.lower, args.upper))
                  for n in range(args.num_entries)]
     outlines += ["#{}".format(uuid.uuid4())]
     outlines += [uuid.uuid4() for n in range(args.errors)]
