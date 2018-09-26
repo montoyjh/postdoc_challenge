@@ -5,10 +5,11 @@ import sys
 import argparse
 
 # Argument parsing
-desc = 'Program that takes two filename inputs corresponding \
-        to lists of files and nodes and distributes the files \
-        onto the nodes such that the absolute loads are as \
-        close to one another as possible'
+desc = """
+Program that takes two filename inputs corresponding to lists
+of files and nodes and distributes the files onto the nodes
+such that the absolute loads are evenly distributed
+"""
 
 arg_parser = argparse.ArgumentParser(description=desc)
 arg_parser.add_argument('-f', '--files', help='File containing file list',
@@ -21,12 +22,10 @@ arg_parser.add_argument('-p', '--plot', action='store_true',
                         help='plotting flag, plots nodes/files on bar chart')
 args = arg_parser.parse_args()
 
-if args.o:
-    sys.stdout = open(args.o, 'w')
 # Main body
-dist = Distribution(args.f, args.n)
-dist.distribute()
-dist.summary()
+if __name__ == "__main__":
+    dist = Distribution.from_filenames(args.files, args.nodes)
+    dist.summary(args.output)
 
-if args.plot:
-    dist.plot()
+    if args.plot:
+        dist.plot()
