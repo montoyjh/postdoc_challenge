@@ -11,4 +11,5 @@ monty==1.0.3
 plotly==2.0.15
 pylatexenc==1.2
 six>=1.11.0
+tqdm>=4.26.0
 Flask-Caching==1.3.3
