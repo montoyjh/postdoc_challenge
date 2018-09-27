@@ -7,6 +7,6 @@ install:
   - pip install coverage
   - pip install python-coveralls
 script:
-  - nosetests --with-coverage
+  - nosetests --with-coverage --cover-package=distribution
 after_success:
   - coveralls
