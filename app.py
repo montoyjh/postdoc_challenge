@@ -19,10 +19,7 @@ logger = logging.getLogger(__name__)
 # external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css',
 #                         'https://codepen.io/mikesmith1611/pen/QOKgpG.css']
 app = dash.Dash()
-app.css.append_css(
-    {"external_url": 'https://codepen.io/chriddyp/pen/bWLwgP.css'})
-app.css.append_css(
-    {"external_url": 'https://codepen.io/mikesmith1611/pen/QOKgpG.css'})
+
 app.server.secret_key = environ.get('FLASK_SECRET_KEY', str(uuid4()))
 server = app.server
 app.css.config.serve_locally = True
@@ -66,12 +63,20 @@ uploaders = html.Div([html.Br(), get_upload_div('files'), get_upload_div('nodes'
 button = html.Button('Generate plot', id='generate_plot')
 
 app.layout = html.Div(
-    children=[html.Div([html.H3(app.title), html.Br()],
+    children=[route,
+              html.Div([html.H3(app.title), html.Br()],
                        style={'textAlign': 'center'}),
               uploaders,
               button,
               html.Div(id='plot-content')],
     style={'marginLeft': 200, 'marginRight': 200, 'marginTop': 30})
+
+app.css.append_css(
+    {"external_url": 'https://codepen.io/chriddyp/pen/bWLwgP.css'})
+app.css.append_css(
+    {"external_url": 'https://codepen.io/mkhorton/pen/zPgJJw.css'})
+app.css.append_css(
+    {"external_url": 'https://codepen.io/mikesmith1611/pen/QOKgpG.css'})
 
 
 
