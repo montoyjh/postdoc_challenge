@@ -22,7 +22,6 @@ app = dash.Dash()
 
 app.server.secret_key = environ.get('FLASK_SECRET_KEY', str(uuid4()))
 server = app.server
-app.css.config.serve_locally = True
 app.scripts.config.serve_locally = True
 app.title = "File distributor"
 route = dcc.Location(id='url', refresh=False)
@@ -121,6 +120,7 @@ def node_summary(fname, contents):
 def stringify_contents(contents):
     content_type, contents = contents.split(',')
     return b64decode(contents).decode('utf-8')
+
 
 def get_file_summary(filename, contents, name):
     if contents is not None:
