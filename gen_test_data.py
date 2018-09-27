@@ -4,6 +4,20 @@ import uuid
 from random import randint, shuffle
 
 
+def generate_text(num_entries, prefix='files', errors=0,
+                       upper=10000, lower=10, hashlines=0):
+    """Generates some test text for parsing"""
+    outlines = []
+    outlines += ["{}_{} {}".format(prefix, n,
+                                   randint(lower, upper))
+                 for n in range(num_entries)]
+    outlines += ["#{}".format(uuid.uuid4()) for _ in range(hashlines)]
+    outlines += [uuid.uuid4() for _ in range(errors)]
+
+    shuffle(outlines)
+    return '\n'.join(outlines)
+
+
 arg_parser = argparse.ArgumentParser()
 
 arg_parser.add_argument('-o',  '--output',
@@ -28,18 +42,9 @@ arg_parser.add_argument('-p', '--prefix', default="node",
                         help="prefix for node/file titles, defaults to 'node'")
 
 
-
-args = arg_parser.parse_args()
-
 if __name__ == "__main__":
-    outlines = []
-    outlines += ["{}_{} {}".format(args.prefix, n,
-                                   randint(args.lower, args.upper))
-                 for n in range(args.num_entries)]
-    outlines += ["#{}".format(uuid.uuid4())]
-    outlines += [uuid.uuid4() for n in range(args.errors)]
-
-    shuffle(outlines)
-
+    args = arg_parser.parse_args()
+    text = generate_text(args.num_entries, args.prefix, args.errors,
+                              args.upper, args.lower, args.hash)
     with open(args.output, 'w') as f:
-        f.write('\n'.join(outlines))
+        f.write(text)
