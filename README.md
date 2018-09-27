@@ -1,5 +1,7 @@
 [![Build Status](https://travis-ci.org/montoyjh/postdoc_challenge.svg?branch=master)](https://travis-ci.org/montoyjh/postdoc_challenge)
 [![Coverage Status](https://coveralls.io/repos/github/montoyjh/postdoc_challenge/badge.svg?branch=master&service=github)](https://coveralls.io/github/montoyjh/postdoc_challenge?branch=master)
+## Installation
+Requirements may be installed via `pip install -r requirements.txt` from within the package folder.
 
 ## Usage
 
