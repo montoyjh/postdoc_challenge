@@ -156,14 +156,15 @@ class Distribution(object):
         lines = []
         for node, pf in zip(self.nodes, self.placed_files):
             for file in pf:
-                lines.append('{} {}'.format(node[0], file[0]))
-        lines.extend(['NULL {}'.format(file[0]) for file in self.null_files])
+                lines.append('{} {}'.format(file[0], node[0]))
+        lines.extend(['{} NULL'.format(file[0]) for file in self.null_files])
         text = '\n'.join(lines)
         if output_file:
             with open(output_file, 'w') as f:
                 f.write(text)
         else:
             print(text)
+        return text
 
 
 # Helper methods for parsing files

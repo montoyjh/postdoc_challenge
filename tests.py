@@ -60,6 +60,10 @@ class DistributionTest(TestCase):
         dist = Distribution(nodes, files)
         self.assertIn(('file_1', 26), dist.null_files)
         self.assertIn(('file_2', 75), dist.placed_files[0])
+        self.assertIn('node', dist.node_names)
+        summary = dist.summary()
+        self.assertIn("file_1 NULL", summary)
+
 
     @skipIf(SMALL_TESTS, "Only small tests being run")
     def test_large(self):
